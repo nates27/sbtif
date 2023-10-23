@@ -626,7 +626,13 @@ class TemperatureScore(PortfolioAggregation):
         score_aggregations = ScoreAggregations()
         for time_frame in self.time_frames:
             score_aggregation_scopes = ScoreAggregationScopes()
-            for scope in self.scopes:
+            # agg_scopes = self.scopes
+            # Limit aggregation scopes to S1S2 only since S3 is 0
+            if self.aggregation_method != PortfolioAggregationMethod.ROTS:
+                agg_scopes = self.scopes
+            else:
+                agg_scopes = [EScope.S1S2, EScope.S1S2S3]
+            for scope in agg_scopes:
                 score_aggregation_scopes.__setattr__(
                     scope.name, self._get_score_aggregation(data, time_frame, scope)
                 )

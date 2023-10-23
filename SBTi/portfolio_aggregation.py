@@ -172,6 +172,10 @@ class PortfolioAggregation(ABC):
                     self._check_column(data, self.c.COLS.GHG_SCOPE12)
                 if use_S3.any():
                     self._check_column(data, self.c.COLS.GHG_SCOPE3)
+                
+                if portfolio_aggregation_method == PortfolioAggregationMethod.ROTS:
+                    data[self.c.COLS.GHG_SCOPE3] = 0
+
                 data[self.c.COLS.OWNED_EMISSIONS] = (
                     data[self.c.COLS.INVESTMENT_VALUE] / data[value_column]
                 ) * (
