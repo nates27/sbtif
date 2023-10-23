@@ -173,6 +173,7 @@ class PortfolioAggregation(ABC):
                 if use_S3.any():
                     self._check_column(data, self.c.COLS.GHG_SCOPE3)
                 
+                #When ROTS is used, set S3 emissions to zero
                 if portfolio_aggregation_method == PortfolioAggregationMethod.ROTS:
                     data[self.c.COLS.GHG_SCOPE3] = 0
 
