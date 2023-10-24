@@ -628,13 +628,10 @@ class TemperatureScore(PortfolioAggregation):
             score_aggregation_scopes = ScoreAggregationScopes()
 
             # Exclude S3 scope in ROTS, since S3 is 0
-            if self.aggregation_method == PortfolioAggregationMethod.ROTS: 
-                agg_scopes = self.scopes.copy()
-                if EScope.S3 in agg_scopes:
-                    agg_scopes.remove(EScope.S3)
-            else:
-                agg_scopes = self.scopes
-
+            agg_scopes = self.scopes.copy()
+            if (self.aggregation_method == PortfolioAggregationMethod.ROTS) & (EScope.S3 in agg_scopes): 
+                agg_scopes.remove(EScope.S3)
+            
             for scope in agg_scopes:
                 score_aggregation_scopes.__setattr__(
                     scope.name, self._get_score_aggregation(data, time_frame, scope)
