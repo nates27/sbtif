@@ -627,10 +627,14 @@ class TemperatureScore(PortfolioAggregation):
         for time_frame in self.time_frames:
             score_aggregation_scopes = ScoreAggregationScopes()
 
-            # Exclude S3 scope in ROTS, since S3 is 0
+            # For ROTS, since S3 is 0, effective TS scope is only S1S2.
+            # Exclude S3, S1S2S3 scopes if ROTS
             agg_scopes = self.scopes.copy()
-            if (self.aggregation_method == PortfolioAggregationMethod.ROTS) & (EScope.S3 in agg_scopes): 
-                agg_scopes.remove(EScope.S3)
+            if self.aggregation_method == PortfolioAggregationMethod.ROTS:
+                if EScope.S3 in agg_scopes: 
+                    agg_scopes.remove(EScope.S3)
+                if EScope.S1S2S3 in agg_scopes:
+                    agg_scopes.remove(EScope.S1S2S3)
             
             for scope in agg_scopes:
                 score_aggregation_scopes.__setattr__(
@@ -638,7 +642,14 @@ class TemperatureScore(PortfolioAggregation):
                 )
             score_aggregations.__setattr__(time_frame.value, score_aggregation_scopes)
 
-        return score_aggregations
+        # When ROTS, change S3 emissions to zero in amended portfolio df
+        # Allow user to return revised df
+        if self.aggregation_method == PortfolioAggregationMethod.ROTS:
+            revised_data = data.copy()
+            revised_data[self.c.COLS.GHG_SCOPE3] = 0
+            return score_aggregations, revised_data
+        else:
+            return score_aggregations
 
     def cap_scores(self, scores: pd.DataFrame) -> pd.DataFrame:
         """
